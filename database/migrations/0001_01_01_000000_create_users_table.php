@@ -1,49 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use MongoDB\Laravel\Schema\Blueprint;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    protected $connection = 'mongodb';
+
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
+        Schema::connection($this->connection)->create('users', function (Blueprint $collection) {
+            $collection->index('email');  // Ensures no duplicate emails
+            $collection->timestamps();
         });
 
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
-        });
 
-        Schema::create('sessions', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
-            $table->string('ip_address', 45)->nullable();
-            $table->text('user_agent')->nullable();
-            $table->longText('payload');
-            $table->integer('last_activity')->index();
+        // Password Reset Tokens
+        Schema::connection($this->connection)->create('password_reset_tokens', function (Blueprint $collection) {
+            // Index on email since we'll look up tokens by email
+            $collection->index('email');
+            // Index on token for verification lookups
+            $collection->index('token');
+            // Laravel expects a created_at timestamp
+            $collection->timestamp('created_at');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('sessions');
+        Schema::connection($this->connection)->dropIfExists('users');
+        Schema::connection($this->connection)->dropIfExists('password_reset_tokens');
+        Schema::connection($this->connection)->dropIfExists('sessions');
     }
 };
