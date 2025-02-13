@@ -31,9 +31,9 @@ class RegisteredUserController extends Controller
     {
         //
         $attributes = $request->validate([
-            'name' => ['required'],
+            'name' => ['required', 'string'],
             'email' => ['required', 'email'],
-            'role' => ['required', Rule::in(['manager', 'employee'])]
+            'role' => ['required', 'string', Rule::in(['manager', 'employee'])]
         ]);
 
         //dd($attributes);

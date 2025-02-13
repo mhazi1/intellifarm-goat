@@ -3,10 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Farm;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use MongoDB\Laravel\Eloquent\Casts\ObjectId;
 
 class FarmController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      */
@@ -28,11 +33,31 @@ class FarmController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        $attributes = $request->validate([
+
+        $id = Auth::id();
+
+        $user = User::find($id);
+
+        if (!$id) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $request->validate([
             'name' => ['required', 'string'],
             'location' => ['required', 'string'],
         ]);
+
+        $farm = Farm::create([
+            'name' => $request->name,
+            'location' => $request->location,
+        ]);
+
+        $user->farms()->save($farm);
+
+        return response()->json([
+            'message' => 'Farm created successfully',
+            'farm' => $farm
+        ], 201);
     }
 
     /**

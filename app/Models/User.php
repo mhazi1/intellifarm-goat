@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 // use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use MongoDB\Laravel\Auth\User as Authenticatable;
+use MongoDB\Laravel\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -49,4 +50,9 @@ class User extends Authenticatable
     }
 
     protected $connection = "mongodb";
+
+    public function farms(): HasMany
+    {
+        return $this->hasMany(Farm::class);
+    }
 }
