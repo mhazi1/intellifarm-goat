@@ -5,6 +5,8 @@ namespace App\Models;
 // use Illuminate\Database\Eloquent\Model;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
+use MongoDB\Laravel\Relations\HasMany;
+
 
 class Farm extends Model
 {
@@ -14,11 +16,21 @@ class Farm extends Model
     protected $fillable = [
         'name',
         'location',
-        'user_id'
+        'manager_id'
     ];
 
-    public function user(): BelongsTo
+    public function manager(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'manager_id');
+    }
+
+    public function employees(): HasMany
+    {
+        return $this->hasMany(User::class, 'farm_id');
+    }
+
+    public function livestocks(): HasMany
+    {
+        return $this->hasMany(Livestock::class);
     }
 }

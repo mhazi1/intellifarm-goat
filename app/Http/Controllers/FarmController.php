@@ -60,6 +60,24 @@ class FarmController extends Controller
         ], 201);
     }
 
+    public function store_employee(Request $request)
+    {
+        $id = Auth::id();
+
+        $user = User::find($id);
+
+        $farmId = $request->farmId;
+
+        $farm = Farm::findOrFail($farmId);
+
+        $farm->employees()->save($user);
+
+        return response()->json([
+            'message' => 'Employee registered to farm successfully',
+            'farm' => $farm
+        ], 201);
+    }
+
     /**
      * Display the specified resource.
      */

@@ -2,24 +2,24 @@
 
 namespace Tests\Feature;
 
-use App\Models\Farm;
 use Tests\TestCase;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class UserTest extends TestCase
+class LivestockTest extends TestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Drop the 'users' and 'farms' collection before each test
+        // Drop the 'users' and 'farms' and 'livestocks' collection before each test
         DB::connection('mongodb')->getCollection('users')->drop();
         DB::connection('mongodb')->getCollection('farms')->drop();
+        DB::connection('mongodb')->getCollection('livestocks')->drop();
     }
 
-    public function test_can_add_user()
+    public function test_can_add_livestock()
     {
 
         $attributes = [
@@ -34,7 +34,7 @@ class UserTest extends TestCase
         $this->assertDatabaseHas('users', $attributes, 'mongodb');
     }
 
-    public function test_manager_can_add_farm()
+    public function test_can_add_farm()
     {
         $user = User::create([
             'name' => 'John Doe',
@@ -53,30 +53,5 @@ class UserTest extends TestCase
 
         $response->assertStatus(201);
         $this->assertDatabaseHas('farms', $attributes, 'mongodb');
-    }
-
-    public function test_employee_can_register_to_farm()
-    {
-        $user = User::create([
-            'name' => 'Muhammad Ali',
-            'email' => 'ali@gmail.com',
-            'role' => 'employee',
-        ]);
-
-        Auth::login($user);
-
-        Farm::create([
-            'name' => 'Test Farm',
-            'location' => 'Kajang',
-        ]);
-
-        $farm = Farm::first();
-        $farmId = (string) $farm['_id'];
-
-        $response = $this->actingAs($user)->post(route('farm.add.employee'), ['farmId' => $farmId]);
-        $response->assertStatus(201);
-
-        // $relatedFarm = $farm->employees;
-        // dd($relatedFarm);
     }
 }

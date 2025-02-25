@@ -7,40 +7,26 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 // use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use MongoDB\Laravel\Auth\User as Authenticatable;
+use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
-        'role'
+        'role',
+        'farm_id' // Only for employees
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -51,8 +37,15 @@ class User extends Authenticatable
 
     protected $connection = "mongodb";
 
+    // For managers
     public function farms(): HasMany
     {
-        return $this->hasMany(Farm::class);
+        return $this->hasMany(Farm::class, 'manager_id');
+    }
+
+    // For employees
+    public function farm(): BelongsTo
+    {
+        return $this->belongsTo(Farm::class);
     }
 }
